@@ -5,6 +5,7 @@
                  [compojure "1.1.9"]
                  [hiccup "1.0.5"]
                  [clj-http "1.0.0"]
-                 [hickory "0.5.4"]]
+                 [hickory "0.5.4"]
+                 [org.im4java/im4java "1.4.0"]]
   :plugins [[lein-ring "0.8.11"]]
   :ring {:handler imagizer.core/webapp})
