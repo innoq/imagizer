@@ -20,12 +20,33 @@
    (with-open [stream (java.io.BufferedOutputStream. (java.io.FileOutputStream. filename))]
      (.write stream byte-array)))
 
-(defn paint [from to]
-  (let [op  (-> (IMOperation.)
-                (.addImage (into-array String [from]))
-                (.paint 2.0)
-                (.addImage (into-array String [to])))]
-    (.run (ConvertCmd.) op (into-array Object []))))
+(def conversions (sorted-map 
+                  :paint #(.paint % 2.0)
+                  :blur #(.blur % 10.0)
+                  :rotate-left #(.transpose %)
+                  :rotate-right #(.transverse %)
+                  :swirl #(.swirl % 80.0)
+                  :spread #(.spread % (int 5))
+                  :polaroid #(.polaroid % 5.0)
+                  :negate #(.negate %)
+                  :monochrome #(.monochrome %)
+                  :magnify #(.magnify %)
+                  :mirror-vertically #(.flop %)
+                  :mirror-horizontally #(.flip %)
+                  :charcoal #(.charcoal % (int 1))
+                  ;; http://stackoverflow.com/questions/4058224/creation-of-edge-detection-based-image-in-php#comment4359286_4058233
+                  :black-white-sketch #(-> % (.edge 1.0) .negate .normalize (.colorspace "Gray") (.blur 0.5) (.contrastStretch (int 50)))))
+
+(defn conversion [op]
+  ((keyword op) conversions))
+
+(defn converter [conversion]
+  (fn [from to]
+    (let [op (-> (IMOperation.)
+                 (.addImage (into-array String [from]))
+                 conversion
+                 (.addImage (into-array String [to])))]
+      (.run (ConvertCmd.) op (into-array Object [])))))
 
 (defn download-to-file [url filename]
   (-> url
@@ -87,12 +108,15 @@
   (hiccup/html 
    [:img {:src src}]
    (form/form-to [:post (str "/image?src=" src)]
+                 (map-indexed (fn [idx op]
+                                [:div [:label (form/radio-button "op" (= idx 0) (name op)) (str " " (name op))]])
+                              (keys conversions))
                  (form/submit-button "convert"))))
 
-(defn convert-image [src]
+(defn convert-image [src op]
   (let [[from to] (repeatedly random-filename)]
     (download-to-file src from)
-    (paint from to)
+    ((-> op conversion converter) from to)
     (response/redirect-after-post (str "/result?f=" (last (.split to "/"))))))
 
 (defn result-page [f]
@@ -102,7 +126,7 @@
   (GET "/" [] homepage)
   (GET "/images" [url] (images-page url))
   (GET "/image" [src] (image-page src))
-  (POST "/image" [src] (convert-image src))
+  (POST "/image" [src op] (convert-image src op))
   (GET "/result" [f] (result-page f))
   (route/files "/static" {:root workdir})
   (route/not-found (hiccup/html [:h1 "page not found"])))
