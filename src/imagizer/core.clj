@@ -129,6 +129,7 @@
   (POST "/image" [src op] (convert-image src op))
   (GET "/result" [f] (result-page f))
   (route/files "/static" {:root workdir})
+  (route/resources "/public")
   (route/not-found (hiccup/html [:h1 "page not found"])))
 
 (def webapp (h/api app-routes))

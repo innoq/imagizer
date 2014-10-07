@@ -9,6 +9,7 @@ First, you should install imagemagick, e.g. if you're on Mac OS and using homebr
 
 Then:
 
+    lein cljsbuild once
     lein ring server
 
 This will start a webserver which is listening on port 3000 and open a browser (if you don't want a browser window to open automatically try server-headless).
