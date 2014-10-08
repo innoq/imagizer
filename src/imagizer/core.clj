@@ -5,11 +5,13 @@
             [compojure.core :refer :all]
             [compojure.route :as route]
             [compojure.handler :as h]
-            [hiccup.core :as hiccup]
+            [hiccup.page :as hiccup]
             [hiccup.form :as form]
             [clj-http.client :as http]
             [hickory.core :as hickory])
   (:import [org.im4java.core ConvertCmd IMOperation]))
+
+(def baseurl "http://localhost:3000")
 
 (def workdir "work")
 
@@ -84,8 +86,16 @@
   (let [tags (all-tags hiccup-html)]
     (filter img? tags)))
 
+(defn layout [& content]
+  (hiccup/html5
+   [:head
+    [:title "imagizer"]]
+   [:body 
+    content
+    (hiccup/include-js "/js/imagizer.js")]))
+
 (def homepage
-  (hiccup/html
+  (layout
    (form/form-to [:get "/images"]
                  (form/text-field {:size 50} "url" "http://jax.de/wjax2014/speakers")
                  (form/submit-button "show"))))
@@ -95,23 +105,27 @@
         sources-and-alts (->> images
                               (filter #(.startsWith (src %) "http"))
                               (map (juxt src alt)))]
-    (hiccup/html [:h1 url]
-                 (map (fn [[src alt]]
-                        [:div
-                         [:p src]
-                         [:p alt]
-                         [:a {:href (str "/image?src=" src)}
-                          [:img {:src src :alt alt}]]])
-                      sources-and-alts))))
+    (layout [:h1 url]
+            (map (fn [[src alt]]
+                   [:div
+                    [:p src]
+                    [:p alt]
+                    [:a {:href (str "/image?src=" src)}
+                     [:img {:src src :alt alt}]]])
+                 sources-and-alts))))
 
 (defn image-page [src]
-  (hiccup/html 
-   [:img {:src src}]
-   (form/form-to [:post (str "/image?src=" src)]
-                 (map-indexed (fn [idx op]
-                                [:div [:label (form/radio-button "op" (= idx 0) (name op)) (str " " (name op))]])
-                              (keys conversions))
-                 (form/submit-button "convert"))))
+  (layout
+   [:div.imagepreview
+    [:img {:src src}]
+    [:img.preview]
+    (form/form-to [:post (str "/image?src=" src)]
+                  (map-indexed (fn [idx op]
+                                 [:div
+                                  (form/label (name op) (name op))
+                                  (form/radio-button {:id (name op) :class "imagechanger"} "op" (= idx 0) (name op))])
+                               (keys conversions))
+                  (form/submit-button "convert"))]))
 
 (defn convert-image [src op]
   (let [[from to] (repeatedly random-filename)]
@@ -120,7 +134,12 @@
     (response/redirect-after-post (str "/result?f=" (last (.split to "/"))))))
 
 (defn result-page [f]
-  (hiccup/html [:img {:src (str "/static/" f)}]))
+  (let [img-src (str "/static/" f)]
+    (layout
+     [:img {:src img-src}]
+     [:div
+      (form/label "share" "share this: ")
+      (form/text-field {:readonly true :id "share" :size 80} "share" (str baseurl img-src))])))
 
 (defroutes app-routes
   (GET "/" [] homepage)
@@ -129,8 +148,8 @@
   (POST "/image" [src op] (convert-image src op))
   (GET "/result" [f] (result-page f))
   (route/files "/static" {:root workdir})
-  (route/resources "/public")
-  (route/not-found (hiccup/html [:h1 "page not found"])))
+  (route/resources "/")
+  (route/not-found "oops - not found"))
 
 (def webapp (h/api app-routes))
 

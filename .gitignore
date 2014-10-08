@@ -13,4 +13,4 @@ pom.xml.asc
 *~
 work/*
 !work/.gitkeep
-resources/public/imagizer.js
+resources/public/js/imagizer.js

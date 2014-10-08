@@ -7,11 +7,14 @@
                  [clj-http "1.0.0"]
                  [hickory "0.5.4"]
                  [org.im4java/im4java "1.4.0"]
-                 [org.clojure/clojurescript "0.0-2356"]]
+                 [org.clojure/clojurescript "0.0-2356"]
+                 [prismatic/dommy "0.1.3"]
+                 [cljs-http "0.1.16"]
+                 [org.clojure/core.async "0.1.346.0-17112a-alpha"]]
   :plugins [[lein-ring "0.8.11"]
             [lein-cljsbuild "1.0.3"]]
   :ring {:handler imagizer.core/webapp}
   :cljsbuild {:builds [{:source-paths ["src-cljs"]
-                        :compiler {:output-to "resources/public/imagizer.js"
+                        :compiler {:output-to "resources/public/js/imagizer.js"
                                    :optimizations :whitespace
                                    :pretty-print true}}]})
