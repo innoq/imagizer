@@ -3,7 +3,7 @@ imagizer
 
 ## Setup
 
-First, you should install imagemagick, e.g. if you're on Mac OS and using homebrew:
+First, you should install [ImageMagick](http://www.imagemagick.org/), e.g. if you're on Mac OS and using homebrew:
 
     brew install imagemagick
 

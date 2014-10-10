@@ -128,7 +128,8 @@
                   (form/submit-button "convert"))]))
 
 (defn convert-image [src op]
-  (let [[from to] (repeatedly random-filename)]
+  (let [[from toId] (repeatedly random-filename)
+        to (str toId ".jpg")]
     (download-to-file src from)
     ((-> op conversion converter) from to)
     (response/redirect-after-post (str "/result?f=" (last (.split to "/"))))))
