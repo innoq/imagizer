@@ -89,43 +89,60 @@
 (defn layout [& content]
   (hiccup/html5
    [:head
+    [:link {:rel "stylesheet" :type"text/css" :href "http://fonts.googleapis.com/css?family=Montserrat:700,400"}]
+    [:link {:rel "stylesheet" :type "text/css" :href "/stylesheets/imagizer.css"}]
+    [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+    [:meta {:charset "utf-8"}]
     [:title "imagizer"]]
    [:body 
-    content
+    [:div.nav 
+     [:div.nav-content
+      [:a {:href "/"}
+       [:img {:src "/img/icon.svg"}]
+       [:span "Imagizer"]]]
+    ]
+    [:div.content 
+     content]
     (hiccup/include-js "/js/imagizer.js")]))
+
+(defn search-form [url]
+  (form/form-to [:get "/images"]
+                [:p (form/text-field {:size 50} "url" url)]
+                [:p (form/submit-button "search")]))
 
 (def homepage
   (layout
-   (form/form-to [:get "/images"]
-                 (form/text-field {:size 50} "url" "http://jax.de/wjax2014/speakers")
-                 (form/submit-button "show"))))
+    [:p "Search for images"]
+    (search-form "http://jax.de/wjax2014/speakers")))
 
 (defn images-page [url]
   (let [images (-> url load-html parse-to-hiccup imgs)
         sources-and-alts (->> images
                               (filter #(.startsWith (src %) "http"))
                               (map (juxt src alt)))]
-    (layout [:h1 url]
-            (map (fn [[src alt]]
-                   [:div
-                    [:p src]
-                    [:p alt]
-                    [:a {:href (str "/image?src=" src)}
-                     [:img {:src src :alt alt}]]])
-                 sources-and-alts))))
+    (layout [:h1 "search result"]
+            (search-form url)
+            [:div.result-list
+             (map (fn [[src alt]]
+                    [:div.result
+                     [:a {:href (str "/image?src=" src)}
+                      [:img {:src src :alt alt}]]])
+                  sources-and-alts)])))
 
 (defn image-page [src]
   (layout
-   [:div.imagepreview
+   [:div.image-preview
     [:img {:src src}]
     [:img.preview]
+    [:div.filter-options
     (form/form-to [:post (str "/image?src=" src)]
                   (map-indexed (fn [idx op]
-                                 [:div
-                                  (form/label (name op) (name op))
-                                  (form/radio-button {:id (name op) :class "imagechanger"} "op" (= idx 0) (name op))])
+                                 [:div.filter-option
+                                  (form/radio-button {:id (name op) :class "imagechanger"} "op" (= idx 0) (name op))
+                                  (form/label (name op) (name op))])
                                (keys conversions))
-                  (form/submit-button "convert"))]))
+                  [:div.filter-action 
+                   (form/submit-button "convert")])]]))
 
 (defn convert-image [src op]
   (let [[from toId] (repeatedly random-filename)
@@ -137,10 +154,10 @@
 (defn result-page [f]
   (let [img-src (str "/static/" f)]
     (layout
-     [:img {:src img-src}]
-     [:div
-      (form/label "share" "share this: ")
-      (form/text-field {:readonly true :id "share" :size 80} "share" (str baseurl img-src))])))
+      [:div.filter-result
+       [:img {:src img-src}]
+       [:p "share this image: "]
+       (form/text-field {:readonly true :id "share" :size 80} "share" (str baseurl img-src))])))
 
 (defroutes app-routes
   (GET "/" [] homepage)
