@@ -134,7 +134,12 @@ input[type=text] {
 	height: 100%;
 }
 
-.image-preview img, .filter-result img {
+.image-preview img {
+	max-width: 100%;
+	margin-bottom: 1em;
+}
+
+.filter-result img {
 	max-width: 100%;
 	margin-bottom: 1em;
 }

@@ -89,8 +89,9 @@
 (defn layout [& content]
   (hiccup/html5
    [:head
-    [:link {:rel "stylesheet" :type"text/css" :href "http://fonts.googleapis.com/css?family=Montserrat:700,400"}]
-    [:link {:rel "stylesheet" :type "text/css" :href "/stylesheets/imagizer.css"}]
+    (hiccup/include-css 
+      "http://fonts.googleapis.com/css?family=Montserrat:700,400" 
+      "/stylesheets/imagizer.css")
     [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
     [:meta {:charset "utf-8"}]
     [:title "imagizer"]]
@@ -103,7 +104,9 @@
     ]
     [:div.content 
      content]
-    (hiccup/include-js "/js/imagizer.js")]))
+    (hiccup/include-js 
+      "/js/jquery-2.1.1.min.js" 
+      "/js/imagizer.js")]))
 
 (defn search-form [url]
   (form/form-to [:get "/images"]
@@ -133,7 +136,6 @@
   (layout
    [:div.image-preview
     [:img {:src src}]
-    [:img.preview]
     [:div.filter-options
     (form/form-to [:post (str "/image?src=" src)]
                   (map-indexed (fn [idx op]
