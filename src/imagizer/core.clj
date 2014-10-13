@@ -92,6 +92,7 @@
     (hiccup/include-css 
       "http://fonts.googleapis.com/css?family=Montserrat:700,400" 
       "/stylesheets/imagizer.css")
+    [:base {:href baseurl}]
     [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
     [:meta {:charset "utf-8"}]
     [:title "imagizer"]]
