@@ -32,7 +32,7 @@
                   :polaroid #(.polaroid % 5.0)
                   :negate #(.negate %)
                   :monochrome #(.monochrome %)
-                  :magnify #(.magnify %)
+                  :posterize #(.posterize % (int 5))
                   :mirror-vertically #(.flop %)
                   :mirror-horizontally #(.flip %)
                   :charcoal #(.charcoal % (int 1))
