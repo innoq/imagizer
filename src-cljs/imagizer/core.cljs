@@ -28,10 +28,10 @@
     (go-loop []
              (let [op (<! ops)
                    resp (<! (loader op))
-                   new-src (-> resp :body hickory/parse (sel1 :img) .-src)]
+                   new-src (-> resp :body hickory/parse (sel1 :img.filtered) .-src)]
                (dommy/set-attr! preview :src new-src)
                (recur)))))
 
-(doseq [img-prev (sel :.imagepreview)]
+(doseq [img-prev (sel :.image-preview)]
   (enhance-imagepreview! img-prev))
 

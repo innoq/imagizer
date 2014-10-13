@@ -136,6 +136,7 @@
   (layout
    [:div.image-preview
     [:img {:src src}]
+    [:img.preview]
     [:div.filter-options
     (form/form-to [:post (str "/image?src=" src)]
                   (map-indexed (fn [idx op]
@@ -157,7 +158,7 @@
   (let [img-src (str "/static/" f)]
     (layout
       [:div.filter-result
-       [:img {:src img-src}]
+       [:img.filtered {:src img-src}]
        [:p "share this image: "]
        (form/text-field {:readonly true :id "share" :size 80} "share" (str baseurl img-src))])))
 
