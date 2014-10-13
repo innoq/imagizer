@@ -134,9 +134,20 @@ input[type=text] {
 	height: 100%;
 }
 
+
 .image-preview img {
 	max-width: 100%;
 	margin-bottom: 1em;
+}
+	
+@media screen and (min-width: 600px) {
+	.image-preview img {
+		max-width: 48%;
+	}
+	
+	.image-preview img.original {
+		margin-right: 4%;
+	}
 }
 
 .filter-result img {

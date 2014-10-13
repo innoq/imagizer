@@ -134,7 +134,7 @@
 (defn image-page [src]
   (layout
    [:div.image-preview
-    [:img {:src src}]
+    [:img.original {:src src}]
     [:img.preview]
     [:div.filter-options
     (form/form-to [:post (str "/image?src=" src)]
