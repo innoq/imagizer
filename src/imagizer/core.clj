@@ -104,9 +104,7 @@
     ]
     [:div.content 
      content]
-    (hiccup/include-js 
-      "/js/jquery-2.1.1.min.js" 
-      "/js/imagizer.js")]))
+    (hiccup/include-js "/js/imagizer.js")]))
 
 (defn search-form [url]
   (form/form-to [:get "/images"]
