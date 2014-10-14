@@ -1,0 +1,1 @@
+SELECT DISTINCT Tag FROM Image_Tag;

@@ -8,12 +8,23 @@
             [hiccup.page :as hiccup]
             [hiccup.form :as form]
             [clj-http.client :as http]
-            [hickory.core :as hickory])
+            [hickory.core :as hickory]
+            [yesql.core :refer [defquery defqueries]]
+            [ring.middleware.json :refer [wrap-json-response]])
   (:import [org.im4java.core ConvertCmd IMOperation]))
 
 (def baseurl "http://localhost:3000")
 
 (def workdir "work")
+
+(defquery all-img-tags "db/all_image_tags.sql")
+
+(defqueries "db/add_tag.sql")
+
+(def db-spec {:classname "org.h2.Driver"
+              :subprotocol "h2:file"
+              :subname "./db/data"})
+
 
 (defn random-filename []
   (str workdir "/" (java.util.UUID/randomUUID)))
@@ -151,6 +162,7 @@
         to (str toId ".jpg")]
     (download-to-file src from)
     ((-> op conversion converter) from to)
+    (add-tag! db-spec op to)
     (response/redirect-after-post (str "/result?f=" (last (.split to "/"))))))
 
 (defn result-page [f]
@@ -161,17 +173,23 @@
        [:p "share this image: "]
        (form/text-field {:readonly true :id "share" :size 80} "share" (str baseurl img-src))])))
 
+
+(defn tags-json []
+  (let [tags (all-img-tags db-spec)]
+    (response/response (map :tag tags))))
+
 (defroutes app-routes
   (GET "/" [] homepage)
   (GET "/images" [url] (images-page url))
   (GET "/image" [src] (image-page src))
   (POST "/image" [src op] (convert-image src op))
   (GET "/result" [f] (result-page f))
+  (GET "/tags" [] (tags-json))
   (route/files "/static" {:root workdir})
   (route/resources "/")
   (route/not-found "oops - not found"))
 
-(def webapp (h/api app-routes))
+(def webapp (h/api (wrap-json-response app-routes)))
 
 ;; only for development
 (defn start-dev-server [port handler]

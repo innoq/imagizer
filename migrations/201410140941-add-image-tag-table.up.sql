@@ -1,0 +1,1 @@
+CREATE TABLE Image_Tag (Tag varchar(200), Image varchar(200));

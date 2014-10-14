@@ -10,11 +10,18 @@
                  [org.clojure/clojurescript "0.0-2356"]
                  [prismatic/dommy "0.1.3"]
                  [cljs-http "0.1.16"]
-                 [org.clojure/core.async "0.1.346.0-17112a-alpha"]]
+                 [org.clojure/core.async "0.1.346.0-17112a-alpha"]
+                 [yesql "0.4.0"]
+                 [ring/ring-json "0.3.1"]
+                 [com.h2database/h2 "1.4.181"]
+                 [ragtime "0.3.7"]]
   :plugins [[lein-ring "0.8.11"]
-            [lein-cljsbuild "1.0.3"]]
+            [lein-cljsbuild "1.0.3"]
+            [ragtime/ragtime.lein "0.3.7"]]
   :ring {:handler imagizer.core/webapp}
   :cljsbuild {:builds [{:source-paths ["src-cljs"]
                         :compiler {:output-to "resources/public/js/imagizer.js"
                                    :optimizations :whitespace
-                                   :pretty-print true}}]})
+                                   :pretty-print true}}]}
+  :ragtime {:migrations ragtime.sql.files/migrations
+            :database "jdbc:h2:./db/data"})
