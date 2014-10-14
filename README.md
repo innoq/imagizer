@@ -10,6 +10,7 @@ First, you should install [ImageMagick](http://www.imagemagick.org/), e.g. if yo
 Then:
 
     lein cljsbuild once
+    lein ragtime migrate
     lein ring server
 
 This will start a webserver which is listening on port 3000 and open a browser (if you don't want a browser window to open automatically try server-headless).
