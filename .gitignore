@@ -17,3 +17,5 @@ resources/public/js/imagizer.js
 bin/
 .classpath
 .project
+db/*
+!db/.gitkeep

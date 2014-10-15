@@ -124,6 +124,13 @@ input[type=text] {
 	border-style: solid;
 	width: 100%;
 }
+
+input[type=submit]:hover {
+    -webkit-box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 0.2);
+    box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 0.2);
+}
+
 .result {
 	display: inline-block;
 	margin: 0.2em;
