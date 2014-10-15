@@ -180,7 +180,7 @@
   (let [tags (all-img-tags db-spec)]
     (response/response (map :tag tags))))
 
-(def filtered-file-by-uuid [uuid]
+(defn filtered-file-by-uuid [uuid]
   (str workdir "/" uuid filtered-file-type))
 
 (defn filtered-file [uuid]
