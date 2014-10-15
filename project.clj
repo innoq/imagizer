@@ -15,7 +15,7 @@
                  [ring/ring-json "0.3.1"]
                  [com.h2database/h2 "1.4.181"]
                  [ragtime "0.3.7"]]
-  :plugins [[lein-ring "0.8.11"]
+  :plugins [[lein-ring "0.8.12"]
             [lein-cljsbuild "1.0.3"]
             [ragtime/ragtime.lein "0.3.7"]]
   :ring {:handler imagizer.core/webapp}
@@ -24,4 +24,5 @@
                                    :optimizations :whitespace
                                    :pretty-print true}}]}
   :ragtime {:migrations ragtime.sql.files/migrations
-            :database "jdbc:h2:./db/data"})
+            :database "jdbc:h2:./db/data"}
+  :profiles {:uberjar {:aot :all}})
