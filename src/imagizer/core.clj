@@ -157,13 +157,15 @@
                   [:div.filter-action 
                    (form/submit-button "convert")])]]))
 
+(def filtered-file-type ".jpg")
+
 (defn convert-image [src op]
   (let [[from toId] (repeatedly random-filename)
-        to (str toId ".jpg")]
+        to (str toId filtered-file-type)]
     (download-to-file src from)
     ((-> op conversion converter) from to)
     (add-tag! db-spec op to)
-    (response/redirect-after-post (str "/result?f=" (last (.split to "/"))))))
+    (response/redirect-after-post (str "/result/" (last (.split toId "/"))))))
 
 (defn result-page [f]
   (let [img-src (str "/static/" f)]
@@ -178,14 +180,20 @@
   (let [tags (all-img-tags db-spec)]
     (response/response (map :tag tags))))
 
+(def filtered-file-by-uuid [uuid]
+  (str workdir "/" uuid filtered-file-type))
+
+(defn filtered-file [uuid]
+  (response/file-response (filtered-file-by-uuid uuid)))
+
 (defroutes app-routes
   (GET "/" [] homepage)
   (GET "/images" [url] (images-page url))
   (GET "/image" [src] (image-page src))
   (POST "/image" [src op] (convert-image src op))
-  (GET "/result" [f] (result-page f))
+  (GET "/result/:uuid" [uuid] (result-page uuid))
   (GET "/tags" [] (tags-json))
-  (route/files "/static" {:root workdir})
+  (GET "/static/:uuid" [uuid] (filtered-file uuid))
   (route/resources "/")
   (route/not-found "oops - not found"))
 
