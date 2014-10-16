@@ -183,3 +183,16 @@ input[type=submit]:hover {
 	color: white; 
 }
 
+.tags li a {
+	color: white;
+}
+
+.tags li:hover {
+	background-color: #678CFF;
+}
+
+.tags li a:hover {
+	color: #1B2442;
+}
+
+

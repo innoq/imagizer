@@ -20,6 +20,7 @@
 (defquery all-img-tags "db/all_image_tags.sql")
 (defquery get-image "db/get_image.sql")
 (defquery get-image-tags "db/get_image_tags.sql")
+(defquery get-images-by-tag "db/get_images_by_tag.sql")
 
 (defqueries "db/add_tag.sql")
 (defqueries "db/add_image.sql")
@@ -143,9 +144,9 @@
                               (map (juxt src alt)))]
     (layout [:h1 "search result"]
             (search-form url)
-            [:div.result-list
+            [:ul.result-list
              (map (fn [[src alt]]
-                    [:div.result
+                    [:li.result
                      [:a {:href (str "/image?src=" src)}
                       [:img {:src src :alt alt}]]])
                   sources-and-alts)])))
@@ -197,7 +198,7 @@
              [:img.filtered {:src img-src}]]))))
 
 (defn tag-list [tags]
-  [:ul.tags (map (fn [tag] [:li {} tag]) tags)])
+  [:ul.tags (map (fn [tag] [:li [:a {:href (str "/tags/" tag)} tag]]) tags)])
 
 (defn tag-form [uuid]
   (form/form-to [:post (str "/result/" uuid "/tags")]
@@ -234,6 +235,17 @@
     (add-tag! db-spec uuid tag))
   (response/redirect-after-post (str "/result/" uuid)))
 
+(defn image-link [uuid]
+  (let [result-link (str "/result/" uuid)
+        img-link (str "/static/" uuid)]
+    [:a {:href result-link} [:img {:src img-link}]]))
+
+(defn tag-page [tag]
+  (let [images (get-images-by-tag db-spec tag)]
+    (layout 
+      [:ul.result-list
+       (map (fn [image] [:li.result (image-link (:id image))]) images)])))
+
 (defroutes app-routes
   (GET "/" [] homepage)
   (GET "/images" [url] (images-page url))
@@ -243,6 +255,7 @@
   (GET "/result/:uuid" [uuid] (result-page uuid))
   (POST "/result/:uuid/tags" [uuid tag] (add-tag uuid tag))
   (GET "/tags" [] (tags-json))
+  (GET "/tags/:tag" [tag] (tag-page tag))
   (GET "/static/:uuid" [uuid] (filtered-file uuid))
   (route/resources "/")
   (route/not-found "oops - not found"))
