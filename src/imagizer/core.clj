@@ -100,26 +100,30 @@
   (let [tags (all-tags hiccup-html)]
     (filter img? tags)))
 
+(defn cache-forever [resp]
+  (response/header resp "Cache-Control" "max-age=31536000"))
+
 (defn layout [& content]
-  (hiccup/html5
-   [:head
-    (hiccup/include-css 
-      "http://fonts.googleapis.com/css?family=Montserrat:700,400" 
-      "/stylesheets/imagizer.css")
-    [:base {:href baseurl}]
-    [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
-    [:meta {:charset "utf-8"}]
-    [:title "imagizer"]]
-   [:body 
-    [:div.nav 
-     [:div.nav-content
-      [:a {:href "/"}
-       [:img {:src "/img/icon.svg"}]
-       [:span "Imagizer"]]]
-    ]
-    [:div.content 
-     content]
-    (hiccup/include-js "/js/imagizer.js")]))
+  (response/response 
+    (hiccup/html5
+      [:head
+       (hiccup/include-css 
+         "http://fonts.googleapis.com/css?family=Montserrat:700,400" 
+         "/stylesheets/imagizer.css")
+       [:base {:href baseurl}]
+       [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+       [:meta {:charset "utf-8"}]
+       [:title "imagizer"]]
+            [:body 
+             [:div.nav 
+              [:div.nav-content
+               [:a {:href "/"}
+                [:img {:src "/img/icon.svg"}]
+                [:span "Imagizer"]]]
+             ]
+             [:div.content 
+              content]
+             (hiccup/include-js "/js/imagizer.js")])))
 
 (defn search-form [url]
   (form/form-to [:get "/images"]
@@ -187,9 +191,9 @@
 (defn image-preview [src op]
   (let [uuid (convert-image src op)
         img-src (str "/static/" uuid)]
-    (layout
-      [:div.filter-result
-       [:img.filtered {:src img-src}]])))
+    (cache-forever (layout
+            [:div.filter-result
+             [:img.filtered {:src img-src}]]))))
 
 (defn result-page [f]
   (let [img-src (str "/static/" f)]
@@ -208,7 +212,7 @@
   (str workdir "/" uuid filtered-file-type))
 
 (defn filtered-file [uuid]
-  (response/file-response (filtered-file-by-uuid uuid)))
+  (cache-forever (response/file-response (filtered-file-by-uuid uuid))))
 
 (defroutes app-routes
   (GET "/" [] homepage)
