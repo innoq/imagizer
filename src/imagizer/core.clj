@@ -207,17 +207,20 @@
 
 (defn result-page [uuid]
   (let [img-src (str "/static/" uuid)
-        origin (:origin (first (get-image db-spec uuid)))
+        img (first (get-image db-spec uuid))
         tags (map :tag (get-image-tags db-spec uuid))]
-    (layout
-      [:div.filter-result
-       [:img.filtered {:src img-src}]
-       [:p "original: " [:a {:href origin} origin]]
-       [:p "share this image: "]
-       [:p (form/text-field {:readonly true :id "share" :size 80} "share" (str baseurl img-src))]
-       [:p (form/label "tag" "Tags:")]
-       (tag-list tags)
-       (tag-form uuid)])))
+    (if (nil? img)
+      "oops - not found"
+      (layout
+        [:div.filter-result
+         [:img.filtered {:src img-src}]
+         [:p "original: " [:a {:href (:origin img)} (:origin img)]]
+         [:p "filter: " (:filter img)]
+         [:p "share this image: "]
+         [:p (form/text-field {:readonly true :id "share" :size 80} "share" (str baseurl img-src))]
+         [:p (form/label "tag" "Tags:")]
+         (tag-list tags)
+         (tag-form uuid)]))))
 
 
 (defn tags-json []
