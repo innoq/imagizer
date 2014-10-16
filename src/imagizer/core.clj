@@ -139,6 +139,7 @@
   (let [images (-> url load-html parse-to-hiccup imgs)
         sources-and-alts (->> images
                               (filter #(.startsWith (src %) "http"))
+                              (remove #(.startsWith (src %) "https"))
                               (map (juxt src alt)))]
     (layout [:h1 "search result"]
             (search-form url)
