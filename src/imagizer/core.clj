@@ -154,7 +154,12 @@
     (form/form-to [:post (str "/image?src=" src)]
                   (map-indexed (fn [idx op]
                                  [:div.filter-option
-                                  (form/radio-button {:id (name op) :class "imagechanger"} "op" (= idx 0) (name op))
+                                  (form/radio-button {:id (name op) 
+                                                      :class "imagechanger"
+                                                      :data-preview-url (str "/preview?op=" (name op) "&src="src)}
+                                                     "op" 
+                                                     (= idx 0) 
+                                                     (name op))
                                   (form/label (name op) (name op))])
                                (keys conversions))
                   [:div.filter-action 
@@ -168,9 +173,23 @@
         toId (last (.split toPath "/"))]
     (download-to-file src from)
     ((-> op conversion converter) from toFile)
-    (add-image! db-spec toId src op)
-    (add-tag! db-spec op toId)
-    (response/redirect-after-post (str "/result/" toId))))
+    toId))
+
+(defn store-image-info [uuid src op]
+  (add-image! db-spec uuid src op)
+  (add-tag! db-spec op uuid))
+
+(defn convert-and-store-image [src op]
+  (let [uuid (convert-image src op)]
+    (store-image-info uuid src op)
+    (response/redirect-after-post (str "/result/" uuid))))
+
+(defn image-preview [src op]
+  (let [uuid (convert-image src op)
+        img-src (str "/static/" uuid)]
+    (layout
+      [:div.filter-result
+       [:img.filtered {:src img-src}]])))
 
 (defn result-page [f]
   (let [img-src (str "/static/" f)]
@@ -195,7 +214,8 @@
   (GET "/" [] homepage)
   (GET "/images" [url] (images-page url))
   (GET "/image" [src] (image-page src))
-  (POST "/image" [src op] (convert-image src op))
+  (POST "/image" [src op] (convert-and-store-image src op))
+  (GET "/preview" [src op] (image-preview src op))
   (GET "/result/:uuid" [uuid] (result-page uuid))
   (GET "/tags" [] (tags-json))
   (GET "/static/:uuid" [uuid] (filtered-file uuid))

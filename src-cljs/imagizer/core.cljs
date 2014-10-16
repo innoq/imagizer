@@ -7,27 +7,25 @@
   (:use-macros [dommy.macros :only [node sel sel1]]
                [cljs.core.async.macros :only [go go-loop]]))
 
-(defn load-image [url op]
-    (http/post url {:form-params {:op op}}))
+(defn load-image [url]
+    (http/get url))
 
 (defn changes [changers]
   (let [channel (chan)]
     (doseq [c changers]
-      (let [publish-op (fn []
-                         (when (.-checked c)
-                           (put! channel (.-value c))))]
-        (publish-op)
-        (dommy/listen! c :click publish-op)))
+      (let [publish-preview (fn []
+                              (when (.-checked c)
+                                (put! channel (dommy/attr c :data-preview-url))))]
+        (publish-preview)
+        (dommy/listen! c :click publish-preview)))
     channel))
 
 (defn enhance-imagepreview! [elem]
   (let [preview (sel1 elem :.preview)
-        form (sel1 elem :form)
-        loader (partial load-image (dommy/attr form :action))
-        ops (changes (sel elem :.imagechanger))]
+        preview-urls (changes (sel elem :.imagechanger))]
     (go-loop []
-             (let [op (<! ops)
-                   resp (<! (loader op))
+             (let [preview-url (<! preview-urls)
+                   resp (<! (load-image preview-url))
                    new-src (-> resp :body hickory/parse (sel1 :img.filtered) .-src)]
                (dommy/set-attr! preview :src new-src)
                (recur)))))
