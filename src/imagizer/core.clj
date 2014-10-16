@@ -133,7 +133,7 @@
 (def homepage
   (layout
     [:p "Search for images"]
-    (search-form "http://jax.de/wjax2014/speakers")))
+    (search-form "http://picjumbo.com/category/animals/")))
 
 (defn images-page [url]
   (let [images (-> url load-html parse-to-hiccup imgs)
@@ -181,7 +181,7 @@
 
 (defn store-image-info [uuid src op]
   (add-image! db-spec uuid src op)
-  (add-tag! db-spec op uuid))
+  (add-tag! db-spec uuid op))
 
 (defn convert-and-store-image [src op]
   (let [uuid (convert-image src op)]
@@ -195,13 +195,25 @@
             [:div.filter-result
              [:img.filtered {:src img-src}]]))))
 
-(defn result-page [f]
-  (let [img-src (str "/static/" f)]
+(defn tag-list [tags]
+  [:ul.tags (map (fn [tag] [:li {} tag]) tags)])
+
+(defn tag-form [uuid]
+  (form/form-to [:post (str "/result/" uuid "/tags")]
+                [:p (form/text-field {:size 50} "tag" "")]
+                [:p (form/submit-button "add tag")]))
+
+(defn result-page [uuid]
+  (let [img-src (str "/static/" uuid)
+        tags (map :tag (get-image-tags db-spec uuid))]
     (layout
       [:div.filter-result
        [:img.filtered {:src img-src}]
        [:p "share this image: "]
-       (form/text-field {:readonly true :id "share" :size 80} "share" (str baseurl img-src))])))
+       [:p (form/text-field {:readonly true :id "share" :size 80} "share" (str baseurl img-src))]
+       [:p (form/label "tag" "Tags:")]
+       (tag-list tags)
+       (tag-form uuid)])))
 
 
 (defn tags-json []
@@ -214,6 +226,11 @@
 (defn filtered-file [uuid]
   (cache-forever (response/file-response (filtered-file-by-uuid uuid))))
 
+(defn add-tag [uuid tag]
+  (if-not (nil? tag)
+    (add-tag! db-spec uuid tag))
+  (response/redirect-after-post (str "/result/" uuid)))
+
 (defroutes app-routes
   (GET "/" [] homepage)
   (GET "/images" [url] (images-page url))
@@ -221,6 +238,7 @@
   (POST "/image" [src op] (convert-and-store-image src op))
   (GET "/preview" [src op] (image-preview src op))
   (GET "/result/:uuid" [uuid] (result-page uuid))
+  (POST "/result/:uuid/tags" [uuid tag] (add-tag uuid tag))
   (GET "/tags" [] (tags-json))
   (GET "/static/:uuid" [uuid] (filtered-file uuid))
   (route/resources "/")

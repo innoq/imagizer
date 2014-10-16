@@ -1,1 +1,1 @@
-SELECT DISTICT Tag FROM Image_Tag WHERE Image = :uuid;
+SELECT DISTINCT Tag FROM Image_Tag WHERE Image = :uuid ORDER BY Tag;
