@@ -1,0 +1,1 @@
+SELECT DISTICT Tag FROM Image_Tag WHERE Image = :uuid;

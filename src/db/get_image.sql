@@ -1,0 +1,1 @@
+SELECT * FROM Image WHERE Id = :uuid;

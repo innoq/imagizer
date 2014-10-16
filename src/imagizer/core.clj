@@ -18,8 +18,11 @@
 (def workdir "work")
 
 (defquery all-img-tags "db/all_image_tags.sql")
+(defquery get-image "db/get_image.sql")
+(defquery get-image-tags "db/get_image_tags.sql")
 
 (defqueries "db/add_tag.sql")
+(defqueries "db/add_image.sql")
 
 (def db-spec {:classname "org.h2.Driver"
               :subprotocol "h2:file"
@@ -160,12 +163,14 @@
 (def filtered-file-type ".jpg")
 
 (defn convert-image [src op]
-  (let [[from toId] (repeatedly random-filename)
-        to (str toId filtered-file-type)]
+  (let [[from toPath] (repeatedly random-filename)
+        toFile (str toPath filtered-file-type)
+        toId (last (.split toPath "/"))]
     (download-to-file src from)
-    ((-> op conversion converter) from to)
-    (add-tag! db-spec op to)
-    (response/redirect-after-post (str "/result/" (last (.split toId "/"))))))
+    ((-> op conversion converter) from toFile)
+    (add-image! db-spec toId src op)
+    (add-tag! db-spec op toId)
+    (response/redirect-after-post (str "/result/" toId))))
 
 (defn result-page [f]
   (let [img-src (str "/static/" f)]
