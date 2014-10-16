@@ -14,6 +14,7 @@
                  [yesql "0.4.0"]
                  [ring/ring-json "0.3.1"]
                  [com.h2database/h2 "1.4.181"]
+                 [org.clojure/java.jdbc "0.3.5"]
                  [ragtime "0.3.7"]]
   :plugins [[lein-ring "0.8.12"]
             [lein-cljsbuild "1.0.3"]
