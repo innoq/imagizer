@@ -4,13 +4,14 @@
             [ring.util.response :as response]
             [compojure.core :refer :all]
             [compojure.route :as route]
-            [compojure.handler :as h]
             [hiccup.page :as hiccup]
             [hiccup.form :as form]
             [clj-http.client :as http]
             [hickory.core :as hickory]
             [yesql.core :refer [defquery defqueries]]
-            [ring.middleware.json :refer [wrap-json-response]])
+            [ring.middleware.json :refer [wrap-json-response]]
+            [ring.middleware.file-info :refer [wrap-file-info]]
+            [ring.middleware.defaults :refer [wrap-defaults api-defaults]])
   (:import [org.im4java.core ConvertCmd IMOperation]))
 
 (def baseurl "http://localhost:3000")
@@ -174,12 +175,12 @@
 (def filtered-file-type ".jpg")
 
 (defn convert-image [src op]
-  (let [[from toPath] (repeatedly random-filename)
-        toFile (str toPath filtered-file-type)
-        toId (last (.split toPath "/"))]
+  (let [[from to-path] (repeatedly random-filename)
+        to-file (str to-path filtered-file-type)
+        to-id (last (.split to-path "/"))]
     (download-to-file src from)
-    ((-> op conversion converter) from toFile)
-    toId))
+    ((-> op conversion converter) from to-file)
+    to-id))
 
 (defn store-image-info [uuid src op]
   (add-image! db-spec uuid src op)
@@ -272,7 +273,8 @@
 
 (def webapp (-> app-routes
                 wrap-json-response
-                h/api
+                (wrap-defaults (assoc-in api-defaults [:responses :content-types] false))
+                wrap-file-info
                 (wrap-default-content-type "text/html")))
 
 ;; only for development

@@ -13,6 +13,7 @@
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [yesql "0.4.0"]
                  [ring/ring-json "0.3.1"]
+                 [ring/ring-defaults "0.1.2"]
                  [com.h2database/h2 "1.4.181"]
                  [org.clojure/java.jdbc "0.3.5"]
                  [ragtime "0.3.7"]]
