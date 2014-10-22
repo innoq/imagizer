@@ -263,7 +263,17 @@
   (route/resources "/")
   (route/not-found "oops - not found"))
 
-(def webapp (h/api (wrap-json-response app-routes)))
+(defn wrap-default-content-type [handler content-type]
+  (fn [req]
+    (let [resp (handler req)]
+      (if (contains? (:headers resp) "Content-Type")
+        resp
+        (assoc-in resp [:headers "Content-Type"] content-type)))))
+
+(def webapp (-> app-routes
+                wrap-json-response
+                h/api
+                (wrap-default-content-type "text/html")))
 
 ;; only for development
 (defn start-dev-server [port handler]
