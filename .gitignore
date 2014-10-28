@@ -19,3 +19,5 @@ bin/
 .project
 db/*
 !db/.gitkeep
+.#*
+\#*#
