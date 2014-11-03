@@ -1,5 +1,5 @@
 (defproject imagizer "0.1.0-SNAPSHOT"
-  :description "yet another clojure demo app"
+  :description "clojure demo app"
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [ring "1.3.1"]
                  [compojure "1.1.9"]
