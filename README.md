@@ -23,8 +23,10 @@ Furthermore, you should install [ImageMagick](http://www.imagemagick.org/), e.g.
 
 This will start a webserver which is listening on port 3000 and open a browser (if you don't want a browser window to open automatically try `server-headless` instead of `server` and navigate to [http://localhost:3000/](http://localhost:3000/)).
 
-## Documentation
+## Useful links
 
+* [Slides 'Clojure in Practice'](https://www.innoq.com/de/talks/2014/11/clojure-in-der-praxis-wjax-2014/)
+* [Learning Clojure in the browser](http://www.4clojure.com/problems)
 * [Documentation for Clojure](http://clojure.org/documentation) / [CheatSheet](http://clojure.org/cheatsheet)
 * [Documentation for Leiningen](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md)
 
